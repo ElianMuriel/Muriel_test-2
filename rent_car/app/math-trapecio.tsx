@@ -1,65 +1,66 @@
-import React from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { useMemo, useState } from "react";
+import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import MenuButton from "../src/components/MenuButton";
 
-export default function MathTrapecioScreen() {
-  const [B, setB] = React.useState("10");
-  const [b, setb] = React.useState("6");
-  const [h, seth] = React.useState("4");
+export default function CostByDaysScreen() {
+  const [type, setType] = useState("Economico");
+  const [days, setDays] = useState("");
+  const [insurance, setInsurance] = useState(false);
 
-  const BN = Number(B || 0);
-  const bN = Number(b || 0);
-  const hN = Number(h || 0);
+  const rate = { Economico: 30, SUV: 50, Camioneta: 70 }[type];
+  const d = Number(days);
 
-  const area = React.useMemo(() => {
-    return ((BN + bN) / 2) * hN;
-  }, [BN, bN, hN]);
+  const subtotal = useMemo(() => (d > 0 ? d * rate : 0), [d, rate]);
+  const seguro = useMemo(() => (insurance ? d * 8 : 0), [insurance, d]);
+  const total = subtotal + seguro;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Math 1 — Área Trapecio</Text>
-      <Text style={styles.subtitle}>A = ((B + b) / 2) * h</Text>
+      <Text style={styles.title}>Costo por días</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Base mayor (B)</Text>
-        <TextInput value={B} onChangeText={setB} keyboardType="numeric" style={styles.input} />
+      <Picker selectedValue={type} onValueChange={setType}>
+        <Picker.Item label="Económico" value="Economico" />
+        <Picker.Item label="SUV" value="SUV" />
+        <Picker.Item label="Camioneta" value="Camioneta" />
+      </Picker>
 
-        <Text style={styles.label}>Base menor (b)</Text>
-        <TextInput value={b} onChangeText={setb} keyboardType="numeric" style={styles.input} />
+      <TextInput
+        style={styles.input}
+        placeholder="Número de días"
+        keyboardType="numeric"
+        value={days}
+        onChangeText={setDays}
+      />
 
-        <Text style={styles.label}>Altura (h)</Text>
-        <TextInput value={h} onChangeText={seth} keyboardType="numeric" style={styles.input} />
+      <View style={styles.row}>
+        <Text>Seguro diario (+$8)</Text>
+        <Switch value={insurance} onValueChange={setInsurance} />
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.total}>Área: {area.toFixed(2)}</Text>
-        <Text style={styles.muted}>Cambia los valores y observa el resultado.</Text>
-      </View>
+      <MenuButton title="Calcular" onPress={() => {}} />
+
+      <Text style={styles.result}>Subtotal: ${subtotal}</Text>
+      <Text style={styles.result}>Seguro: ${seguro}</Text>
+      <Text style={styles.total}>Total: ${total}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#f6f7fb" },
-  title: { fontSize: 22, fontWeight: "900" },
-  subtitle: { marginTop: 4, color: "#555", fontWeight: "700" },
-  card: {
-    backgroundColor: "white",
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,.10)",
-    marginTop: 12,
-  },
-  label: { marginTop: 8, color: "#666", fontWeight: "800" },
+  title: { fontSize: 22, fontWeight: "900", marginBottom: 10 },
   input: {
-    marginTop: 6,
     backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,.10)",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
   },
-  total: { fontWeight: "900", fontSize: 20 },
-  muted: { color: "#666", fontWeight: "700", marginTop: 6 },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  result: { fontWeight: "700", marginTop: 6 },
+  total: { fontWeight: "900", marginTop: 8, color: "#1976d2" },
 });

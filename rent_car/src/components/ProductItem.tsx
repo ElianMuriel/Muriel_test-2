@@ -12,7 +12,7 @@ export default function ProductItem(props: {
     <TouchableOpacity onPress={onPress} style={styles.card} activeOpacity={0.85}>
       <Image
         source={{
-          uri: item.url_image || "https://via.placeholder.com/120x120?text=No+Image",
+          uri: item.url_image || "https://unsplash.com/photos/yC-Yzbqy7PY",
         }}
         style={styles.img}
       />

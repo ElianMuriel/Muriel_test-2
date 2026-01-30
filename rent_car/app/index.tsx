@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import MenuButton from "../src/components/MenuButton";
 
@@ -8,25 +7,22 @@ export default function MenuScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>RN Mini Dashboard</Text>
-      <Text style={styles.subtitle}>Menú principal (Expo Router)</Text>
+      <Text style={styles.title}>RentCar Express</Text>
+      <Text style={styles.subtitle}>Cálculos y catálogo rápido</Text>
 
       <View style={{ gap: 12, marginTop: 14 }}>
         <MenuButton
-          title="1) Products (API)"
-          subtitle="Lista paginada desde /products/"
+          title="1) Catálogo (API + fotos)"
           onPress={() => router.push("/products")}
         />
 
         <MenuButton
-          title="2) Math 1 — Área Trapecio"
-          subtitle="A = ((B + b) / 2) * h"
+          title="2) Costo por días"
           onPress={() => router.push("/math-trapecio")}
         />
 
         <MenuButton
-          title="3) Math 2 — Total con IVA y Descuento"
-          subtitle="subtotal + IVA - descuento"
+          title="3) Costo total del alquiler"
           onPress={() => router.push("/math-total")}
         />
       </View>

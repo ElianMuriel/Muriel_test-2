@@ -1,102 +1,59 @@
-import React from "react";
+import { useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-
-import { getProducts } from "../src/api/productsApi";
-import PaginationBar from "../src/components/PaginationBar";
-import ProductItem from "../src/components/ProductItem";
-import type { Product } from "../src/types/product";
+import MenuButton from "../src/components/MenuButton";
 
 export default function ProductsScreen() {
-  const [items, setItems] = React.useState<Product[]>([]);
-  const [count, setCount] = React.useState(0);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  const [page, setPage] = React.useState(1);
-  const [pageSize] = React.useState(5);
-
-  const [search, setSearch] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const load = React.useCallback(async () => {
+  const loadCatalog = async () => {
     setLoading(true);
-    setError(null);
-
+    setError(false);
     try {
-      const data = await getProducts({
-        page,
-        pageSize,
-        search: search.trim() || undefined,
-      });
-      setItems(data.results);
-      setCount(data.count);
+      const res = await fetch(
+        "https://picsum.photos/v2/list?page=1&limit=12"
+      );
+      const data = await res.json();
+      setItems(data);
     } catch (e) {
-      console.log(e);
-      setError("No se pudo cargar productos. Revisa internet / API.");
+      setError(true);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, search]);
-
-  React.useEffect(() => {
-    load();
-  }, [load]);
-
-  const onPrev = () => setPage((p) => Math.max(1, p - 1));
-  const onNext = () => setPage((p) => p + 1);
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Products (API)</Text>
-      <Text style={styles.subtitle}>
-        /products/?page={page}&page_size={pageSize}
-      </Text>
+      <Text style={styles.title}>Catálogo de vehículos</Text>
+      <Text style={styles.subtitle}>Referencial (API pública)</Text>
 
-      <TextInput
-        value={search}
-        onChangeText={(t) => {
-          setSearch(t);
-          setPage(1);
-        }}
-        placeholder="Buscar (opcional)"
-        style={styles.input}
-      />
+      <MenuButton title="Cargar catálogo" onPress={loadCatalog} />
 
-      {loading ? (
-        <View style={{ paddingVertical: 30 }}>
-          <ActivityIndicator />
-        </View>
-      ) : error ? (
-        <Text style={styles.error}>{error}</Text>
-      ) : (
-        <>
-          <FlatList
-            data={items}
-            keyExtractor={(p) => String(p.id)}
-            contentContainerStyle={{ gap: 12 }}
-            renderItem={({ item }) => (
-              <ProductItem item={item} onPress={() => {}} />
-            )}
-            ListEmptyComponent={
-              <Text style={styles.muted}>No hay productos para mostrar.</Text>
-            }
-          />
-
-          <PaginationBar
-            page={page}
-            pageSize={pageSize}
-            count={count}
-            onPrev={onPrev}
-            onNext={onNext}
-          />
-        </>
+      {loading && <ActivityIndicator size="large" style={{ marginTop: 16 }} />}
+      {error && (
+        <Text style={styles.error}>No se pudo cargar catálogo</Text>
       )}
+
+      <FlatList
+        data={items}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ gap: 12, marginTop: 16 }}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <Image source={{ uri: item.download_url }} style={styles.image} />
+            <Text style={styles.cardText}>Modelo: {item.author}</Text>
+            <Text style={styles.cardText}>ID: {item.id}</Text>
+          </View>
+        )}
+      />
     </View>
   );
 }
@@ -104,17 +61,13 @@ export default function ProductsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#f6f7fb" },
   title: { fontSize: 22, fontWeight: "900" },
-  subtitle: { marginTop: 4, color: "#555", fontWeight: "700" },
-  input: {
-    marginTop: 12,
-    marginBottom: 12,
-    backgroundColor: "white",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+  subtitle: { color: "#555", fontWeight: "700", marginBottom: 12 },
+  card: {
+    backgroundColor: "#fff",
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,.10)",
+    padding: 10,
   },
-  error: { color: "#c62828", fontWeight: "800", marginTop: 12 },
-  muted: { color: "#666", fontWeight: "700", paddingVertical: 14 },
+  image: { height: 140, borderRadius: 8 },
+  cardText: { fontWeight: "700", marginTop: 4 },
+  error: { color: "red", marginTop: 12, fontWeight: "700" },
 });
